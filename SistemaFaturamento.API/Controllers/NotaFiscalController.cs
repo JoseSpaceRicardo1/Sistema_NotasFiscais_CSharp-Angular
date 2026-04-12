@@ -83,6 +83,17 @@ namespace SistemaFaturamento.API.Controllers
         [HttpPost]
         public async Task<ActionResult<NotaFiscal>> PostNotaFiscal(NotaFiscal notaFiscal)
         {
+            var maiorNumNota = await _context.NotasFiscais.MaxAsync(n => (int?)n.Numero) ?? 0;
+            
+            notaFiscal.Numero = maiorNumNota + 1;
+
+            notaFiscal.Status = StatusNota.Aberta;
+
+            foreach(var item in notaFiscal.Itens)
+            {
+                item.NotaFiscalId = notaFiscal.Numero;
+            }
+
             _context.NotasFiscais.Add(notaFiscal);
             await _context.SaveChangesAsync();
 
@@ -102,13 +113,12 @@ namespace SistemaFaturamento.API.Controllers
 
             var client = _httpClientFactory.CreateClient();
 
-            string estoqueUrl = "http://localhost:53313/api/Produtos/baixa-estoque";
+            string estoqueUrl = "http://localhost:53313/api/Produtos/baixa-estoque/";
 
             try
             {
                 foreach (var item in nota.Itens)
                 {
-                    // Chamada para o outro microserviço
                     var response = await client.PutAsJsonAsync($"{estoqueUrl}{item.ProdutoId}", item.Quantidade);
 
                     if (!response.IsSuccessStatusCode)

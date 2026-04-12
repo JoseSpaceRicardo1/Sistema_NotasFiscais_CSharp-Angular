@@ -11,8 +11,8 @@ using SistemaFaturamento.API.Data;
 namespace SistemaFaturamento.API.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20260412074035_CriacaoFaturamento")]
-    partial class CriacaoFaturamento
+    [Migration("20260412204122_FaturamentoAjustadoRecreation")]
+    partial class FaturamentoAjustadoRecreation
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -51,10 +51,7 @@ namespace SistemaFaturamento.API.Migrations
             modelBuilder.Entity("SistemaFaturamento.API.Models.NotaFiscal", b =>
                 {
                     b.Property<int>("Numero")
-                        .ValueGeneratedOnAdd()
                         .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Numero"));
 
                     b.Property<int>("Status")
                         .HasColumnType("int");
@@ -66,11 +63,13 @@ namespace SistemaFaturamento.API.Migrations
 
             modelBuilder.Entity("SistemaFaturamento.API.Models.ItemNotaFiscal", b =>
                 {
-                    b.HasOne("SistemaFaturamento.API.Models.NotaFiscal", null)
+                    b.HasOne("SistemaFaturamento.API.Models.NotaFiscal", "NotaFiscal")
                         .WithMany("Itens")
                         .HasForeignKey("NotaFiscalId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.Navigation("NotaFiscal");
                 });
 
             modelBuilder.Entity("SistemaFaturamento.API.Models.NotaFiscal", b =>

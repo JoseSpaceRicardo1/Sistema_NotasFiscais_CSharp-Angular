@@ -5,7 +5,7 @@
 namespace SistemaFaturamento.API.Migrations
 {
     /// <inheritdoc />
-    public partial class CriacaoFaturamento : Migration
+    public partial class FaturamentoAjustadoRecreation : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -14,8 +14,7 @@ namespace SistemaFaturamento.API.Migrations
                 name: "NotasFiscais",
                 columns: table => new
                 {
-                    Numero = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
+                    Numero = table.Column<int>(type: "int", nullable: false),
                     Status = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
