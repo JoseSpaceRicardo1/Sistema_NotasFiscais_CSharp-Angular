@@ -104,5 +104,39 @@ namespace SistemaEstoque.API.Controllers
         {
             return _context.Produtos.Any(e => e.Codigo == id);
         }
+
+        [HttpPut("baixa-estoque/{id}")]
+        public async Task<IActionResult> BaixaEstoque(int id, [FromBody] int quantidade)
+        {
+            if(quantidade <= 0)
+            {
+                return BadRequest("A quantidade deve ser maior que zero.");
+            }
+
+            var produto = await _context.Produtos.FirstOrDefaultAsync(p => p.Codigo == id);
+            
+            if (produto == null)
+            {
+                return NotFound("Produto não econtrado no estoque.");
+            }
+            
+            if (produto.Saldo < quantidade)
+            {
+                return BadRequest($"Saldo insuficiente para realizar a baixa. Quantidade em estoque: {produto.Saldo}");
+            }
+            produto.Saldo -= quantidade;
+
+            try
+            {
+                await _context.SaveChangesAsync();
+            }
+            catch (DbUpdateConcurrencyException)
+            {
+                return StatusCode(500, "Erro ao atualizar o estoque. Tente novamente.");
+            }
+
+            return Ok(produto);
+
+        }
     }
 }
