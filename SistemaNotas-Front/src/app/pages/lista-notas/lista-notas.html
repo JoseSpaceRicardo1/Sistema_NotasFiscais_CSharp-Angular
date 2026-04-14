@@ -1,0 +1,36 @@
+<div class="container" style="padding: 20px;">
+  <h2>Relatório de Notas Fiscais</h2>
+
+  <table mat-table [dataSource]="dataSource" class="mat-elevation-z8">
+
+    <ng-container matColumnDef="numero">
+      <th mat-header-cell *matHeaderCellDef> Nº Nota </th>
+      <td mat-cell *matCellDef="let nota"> {{nota.numero}} </td>
+    </ng-container>
+
+    <ng-container matColumnDef="status">
+      <th mat-header-cell *matHeaderCellDef> Status </th>
+      <td mat-cell *matCellDef="let nota"> 
+        {{ nota.status === 0 ? 'Aberta' : 'Fechada' }} 
+      </td>
+    </ng-container>
+
+    <ng-container matColumnDef="acoes">
+      <th mat-header-cell *matHeaderCellDef> Ações </th>
+      <td mat-cell *matCellDef="let nota">
+        <button mat-raised-button color="primary" 
+        [disabled]="nota.status !== 0 || carregandoId === nota.numero"
+        (click)="imprimir(nota.numero)"> <mat-spinner diameter="20" *ngIf="carregandoId === nota.numero"></mat-spinner>
+  <span *ngIf="carregandoId !== nota.numero">Imprimir</span>
+</button>
+      </td>
+    </ng-container>
+
+    <tr mat-header-row *matHeaderRowDef="colunasExibidas"></tr>
+    <tr mat-row *matRowDef="let row; columns: colunasExibidas;"></tr>
+  </table>
+
+  <div *ngIf="dataSource.data.length === 0" style="margin-top: 20px; color: gray;">
+    Nenhuma nota fiscal encontrada no banco de dados.
+  </div>
+</div>

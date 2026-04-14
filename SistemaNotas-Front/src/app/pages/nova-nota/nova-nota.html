@@ -1,0 +1,34 @@
+<div class="container">
+  <h2>Emitir Nova Nota Fiscal</h2>
+
+  <mat-form-field appearance="fill">
+    <mat-label>Selecione o Produto</mat-label>
+
+    <mat-select [(ngModel)]="novaNota.itens[0].produtoId" name="produto">
+      <mat-option [value]="null" disabled>
+        Selecione...
+      </mat-option>
+
+      <mat-option *ngFor="let p of produtos" [value]="p.codigo">
+        {{ p.descricao }}
+      </mat-option>
+    </mat-select>
+  </mat-form-field>
+
+  <mat-form-field appearance="fill">
+    <mat-label>Quantidade</mat-label>
+    <input 
+      matInput 
+      type="number" 
+      min="1"
+      [(ngModel)]="novaNota.itens[0].quantidade" 
+      name="qtd">
+  </mat-form-field>
+
+  <button 
+    mat-raised-button 
+    color="primary" 
+    (click)="salvar()">
+    Finalizar Venda / Emitir Nota
+  </button>
+</div>
