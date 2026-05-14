@@ -180,6 +180,3 @@ Angular Frontend (4200)
 - Angular Material (MatTable, MatButton, MatSnackBar, MatSpinner, MatToolbar, MatSelect)
 - RxJS (`Observable`, `forkJoin`, `catchError`, `finalize`)
 - `ChangeDetectionStrategy.OnPush` + `ChangeDetectorRef.markForCheck()`
-
-## Vídeo de Demonstração
-**Acesse aqui: https://drive.google.com/file/d/1Kngn-I1YWpVlRFJPDTN4t2Dd-4JjFgVh/view**
