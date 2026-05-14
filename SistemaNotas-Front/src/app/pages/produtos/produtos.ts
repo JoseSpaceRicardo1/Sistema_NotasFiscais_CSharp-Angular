@@ -37,6 +37,9 @@ export class ProdutosComponent implements OnInit {
   colunasExibidas: string[] = ['codigo', 'descricao', 'saldo', 'acoes'];
   carregando = false;
   salvando = false;
+  paginaAtual = 1;
+  totalPaginas = 1;
+  tamanhoPagina = 15;
 
   novoProduto: Produto = { codigo: 0, descricao: '', saldo: 0 };
 
@@ -54,7 +57,7 @@ export class ProdutosComponent implements OnInit {
     this.carregando = true;
     this.cdr.markForCheck(); 
     this.produtoService
-      .getProdutos()
+      .getProdutos(this.paginaAtual, this.tamanhoPagina)
       .pipe(
         finalize(() => {
           this.carregando = false;
@@ -62,8 +65,8 @@ export class ProdutosComponent implements OnInit {
         })
       )
       .subscribe({
-        next: (dados) => {
-          this.produtos = dados;
+        next: (pagina) => {
+          this.produtos = pagina.dados;
           this.cdr.markForCheck();
         },
         error: (err) => this.mostrarErro(err.message),

@@ -53,7 +53,7 @@ export class NovaNotaComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
-    this.produtoService.getProdutos().subscribe({
+    this.produtoService.getTodosProdutos().subscribe({
       next: (dados) => {
         this.produtos = dados;
         this.cdr.markForCheck();
