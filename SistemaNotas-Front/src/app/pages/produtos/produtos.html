@@ -1,4 +1,4 @@
-<div class="container" style="padding: 24px; max-width: 900px; margin: 0 auto;">
+<div class="container" style="padding: 24px; max-width: 1000px; margin: 0 auto;">
 
   <mat-card style="margin-bottom: 32px;">
     <mat-card-header>
@@ -15,9 +15,9 @@
             placeholder="Nome do produto">
         </mat-form-field>
 
-        <mat-form-field appearance="outline">
+        <mat-form-field appearance="outline" style="width: 140px;">
           <mat-label>Saldo Inicial</mat-label>
-          <input matInput type="number" min="0"
+          <input matInput type="number" min="1"
             [(ngModel)]="novoProduto.saldo"
             name="saldo"
             placeholder="0">
@@ -34,8 +34,14 @@
   </mat-card>
 
   <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
-    <h2 style="margin: 0;">Produtos Cadastrados</h2>
-    <button mat-stroked-button (click)="listarProdutos()" [disabled]="carregando"> Atualizar
+    <h2 style="margin: 0;">
+      Produtos Cadastrados
+      <span *ngIf="totalRegistros > 0" style="font-size: 14px; font-weight: 400; color: #777; margin-left: 8px;">
+        ({{ totalRegistros }} no total)
+      </span>
+    </h2>
+    <button mat-stroked-button (click)="listarProdutos()" [disabled]="carregando">
+      <mat-icon>refresh</mat-icon> Atualizar
     </button>
   </div>
 
@@ -59,19 +65,40 @@
     <ng-container matColumnDef="saldo">
       <th mat-header-cell *matHeaderCellDef> Saldo </th>
       <td mat-cell *matCellDef="let p">
-        <span [style.color]="p.saldo === 0 ? '#e53935' : 'inherit'"
-              [style.fontWeight]="p.saldo === 0 ? '600' : 'normal'">
+        <span
+          [style.color]="p.saldo === 0 ? '#e53935' : 'inherit'"
+          [style.fontWeight]="p.saldo === 0 ? '600' : 'normal'">
           {{ p.saldo }}
         </span>
       </td>
     </ng-container>
 
+    <ng-container matColumnDef="adicionar">
+      <th mat-header-cell *matHeaderCellDef> Adicionar Estoque </th>
+      <td mat-cell *matCellDef="let p">
+        <div style="display: flex; align-items: center; gap: 8px;">
+          <mat-form-field appearance="outline" style="width: 80px; margin-bottom: -16px;">
+            <input matInput type="number" min="1"
+              [(ngModel)]="quantidadesAdicionais[p.codigo]"
+              [name]="'add_' + p.codigo"
+              placeholder="Qtd">
+          </mat-form-field>
+          <button mat-mini-fab color="accent"
+            [disabled]="adicionandoId === p.codigo"
+            (click)="adicionarSaldo(p)"
+            matTooltip="Adicionar ao saldo atual">
+            <mat-icon>add</mat-icon>
+          </button>
+        </div>
+      </td>
+    </ng-container>
+ 
     <ng-container matColumnDef="acoes">
       <th mat-header-cell *matHeaderCellDef> Ações </th>
       <td mat-cell *matCellDef="let p">
         <button mat-icon-button color="warn"
           (click)="deletar(p.codigo)"
-          title="Excluir produto">
+          matTooltip="Excluir produto">
           <mat-icon>delete</mat-icon>
         </button>
       </td>
@@ -86,4 +113,36 @@
     Nenhum produto cadastrado ainda.
   </div>
 
+  <!-- Paginação -->
+  <div *ngIf="!carregando && totalPaginas > 1"
+    style="display: flex; align-items: center; justify-content: center; gap: 4px; margin-top: 24px; flex-wrap: wrap;">
+ 
+    <button mat-icon-button
+      [disabled]="paginaAtual === 1"
+      (click)="paginaAnterior()"
+      matTooltip="Página anterior">
+      <mat-icon>chevron_left</mat-icon>
+    </button>
+ 
+    <button *ngFor="let p of paginas"
+      mat-stroked-button
+      [color]="p === paginaAtual ? 'primary' : ''"
+      [style.fontWeight]="p === paginaAtual ? '700' : '400'"
+      (click)="irParaPagina(p)"
+      style="min-width: 40px; padding: 0 8px;">
+      {{ p }}
+    </button>
+ 
+    <button mat-icon-button
+      [disabled]="paginaAtual === totalPaginas"
+      (click)="proximaPagina()"
+      matTooltip="Próxima página">
+      <mat-icon>chevron_right</mat-icon>
+    </button>
+ 
+    <span style="margin-left: 8px; color: #777; font-size: 13px;">
+      Página {{ paginaAtual }} de {{ totalPaginas }}
+    </span>
+  </div>
+ 
 </div>

@@ -33,7 +33,7 @@ namespace SistemaEstoque.API.Controllers
 
             var total = await _context.Produtos.CountAsync();
 
-            var produtos = await _context.Produtos.OrderBy(p => p.Codigo).Skip((pagina - 1) * tamanhoPagina).Take(tamanhoPagina).ToListAsync();
+            var produtos = await _context.Produtos.OrderBy(p => p.Descricao).Skip((pagina - 1) * tamanhoPagina).Take(tamanhoPagina).ToListAsync();
 
             var totalPaginas = (int)Math.Ceiling((double)total / tamanhoPagina);
 
@@ -48,12 +48,23 @@ namespace SistemaEstoque.API.Controllers
         }
 
         // GET: api/Produtos/todos
-        // Retorna todos os produtos sem paginação.
-        // Usado pelo frontend em lista-notas (forkJoin) para montar o Map<codigo, descricao>.
         [HttpGet("todos")]
-        public async Task<ActionResult<IEnumerable<Produto>>> GetTodosProdutos()
+        public async Task<ActionResult<IEnumerable<Produto>>> GetTodosProdutos(
+            [FromQuery] string? termo)
         {
-            return await _context.Produtos.OrderBy(p => p.Codigo).ToListAsync();
+            IQueryable<Produto> consulta = _context.Produtos;
+
+            if (!string.IsNullOrWhiteSpace(termo))
+            {
+                consulta = consulta.Where(p =>
+                    p.Descricao.Contains(termo) ||
+                    p.Codigo.ToString().Contains(termo));
+            }
+
+            return await consulta
+                .OrderBy(p => p.Descricao)
+                .Take(15)
+                .ToListAsync();
         }
 
         // GET: api/Produtos/5

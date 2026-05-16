@@ -33,11 +33,12 @@ export class ProdutoService {
         catchError(this.tratarErro)
       );
   }
- 
-  // Retorna todos os produtos sem paginação — usado por lista-notas para montar o Map de nomes
-  getTodosProdutos(): Observable<Produto[]> {
+   // Retorna todos os produtos sem paginação — usado por lista-notas para montar o Map de nomes
+   // Agora pesquisa por termo e o Back filtra no banco
+  getTodosProdutos(termo?: string): Observable<Produto[]> {
+    const params = termo ? `?termo=${encodeURIComponent(termo)}` : '';
     return this.http
-      .get<Produto[]>(`${this.apiUrl}/todos`)
+      .get<Produto[]>(`${this.apiUrl}/todos${params}`)
       .pipe(catchError(this.tratarErro));
   }
  

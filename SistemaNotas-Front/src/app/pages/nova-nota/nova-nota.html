@@ -1,57 +1,103 @@
-<div class="container" style="padding: 24px; max-width: 800px; margin: 0 auto;">
+<div class="container" style="padding: 24px; max-width: 860px; margin: 0 auto;">
   <mat-card>
     <mat-card-header>
       <mat-card-title>Emitir Nova Nota Fiscal</mat-card-title>
-      <mat-card-subtitle>Adicione um ou mais produtos à nota</mat-card-subtitle>
+      <mat-card-subtitle>Pesquise e adicione um ou mais produtos à nota</mat-card-subtitle>
     </mat-card-header>
-
+ 
     <mat-card-content style="padding-top: 16px;">
-
+ 
       <div *ngFor="let item of itens; let i = index"
-        style="display: flex; gap: 12px; align-items: center; margin-bottom: 12px; flex-wrap: wrap;">
-
-        <mat-form-field appearance="outline" style="flex: 2; min-width: 200px;">
-          <mat-label>Produto</mat-label>
-          <mat-select [(ngModel)]="item.produtoId" [name]="'produto' + i">
-            <mat-option [value]="null" disabled>Selecione...</mat-option>
-            <mat-option *ngFor="let p of produtos" [value]="p.codigo">
-              {{ p.descricao }} — saldo: {{ p.saldo }}
-            </mat-option>
-          </mat-select>
-        </mat-form-field>
-
-        <mat-form-field appearance="outline" style="flex: 1; min-width: 110px;">
-          <mat-label>Quantidade</mat-label>
-          <input matInput type="number" min="1"
-            [(ngModel)]="item.quantidade"
-            [name]="'qtd' + i">
-          <mat-hint *ngIf="saldoProduto(item.produtoId) !== null"
-            [style.color]="item.quantidade > (saldoProduto(item.produtoId) ?? 0) ? '#e53935' : '#43a047'">
-            Disponível: {{ saldoProduto(item.produtoId) }}
-          </mat-hint>
-        </mat-form-field>
-
-        <button mat-icon-button color="warn"
-          *ngIf="itens.length > 1"
-          (click)="removerItem(i)"
-          title="Remover produto">
-          <mat-icon>remove_circle_outline</mat-icon>
-        </button>
+        style="margin-bottom: 20px; padding: 12px; border: 1px solid #e0e0e0; border-radius: 8px; background: #fafafa;">
+ 
+        <div style="display: flex; gap: 12px; align-items: flex-start; flex-wrap: wrap;">
+ 
+          <!-- Campo de busca por nome/código -->
+          <div style="flex: 2; min-width: 220px;">
+            <mat-form-field appearance="outline" style="width: 100%;">
+              <mat-label>Buscar produto</mat-label>
+              <input matInput
+                [ngModel]="item.termoBusca"
+                (ngModelChange)="onTermoBuscaChange(i, $event)"
+                [name]="'busca_' + i"
+                placeholder="Digite o nome ou código...">
+              <mat-icon matSuffix>{{ item.buscando ? 'hourglass_empty' : 'search' }}</mat-icon>
+            </mat-form-field>
+ 
+            <!-- Dropdown de resultados da busca -->
+            <div *ngIf="item.resultadosBusca.length > 0"
+              style="border: 1px solid #ddd; border-radius: 4px; background: white;
+                     max-height: 200px; overflow-y: auto; box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+                     margin-top: -16px;">
+              <div *ngFor="let p of item.resultadosBusca"
+                (click)="onProdutoSelecionado(i, p.codigo)"
+                [style.background]="item.produtoId === p.codigo ? '#e3f2fd' : 'white'"
+                style="padding: 10px 14px; cursor: pointer; border-bottom: 1px solid #f0f0f0;
+                       font-size: 14px; display: flex; justify-content: space-between; align-items: center;"
+                (mouseenter)="$event.target && ($any($event.target).style.background='#f5f5f5')"
+                (mouseleave)="$event.target && ($any($event.target).style.background = item.produtoId === p.codigo ? '#e3f2fd' : 'white')">
+                <span>
+                  <strong>{{ p.descricao }}</strong>
+                  <span style="color: #888; font-size: 12px; margin-left: 6px;">#{{ p.codigo }}</span>
+                </span>
+                <span [style.color]="p.saldo === 0 ? '#e53935' : '#43a047'"
+                  style="font-size: 12px; white-space: nowrap;">
+                  saldo: {{ p.saldo }}
+                </span>
+              </div>
+            </div>
+ 
+            <!-- Produto selecionado -->
+            <div *ngIf="item.produtoId !== null" style="margin-top: 4px; font-size: 12px; color: #43a047;">
+              ✓ Produto selecionado (código {{ item.produtoId }})
+            </div>
+ 
+            <!-- Sem resultados -->
+            <div *ngIf="!item.buscando && item.resultadosBusca.length === 0 && item.termoBusca.length > 0"
+              style="margin-top: 4px; font-size: 12px; color: #e53935;">
+              Nenhum produto encontrado para "{{ item.termoBusca }}"
+            </div>
+          </div>
+ 
+          <!-- Quantidade -->
+          <mat-form-field appearance="outline" style="width: 110px;">
+            <mat-label>Quantidade</mat-label>
+            <input matInput type="number" min="1"
+              [(ngModel)]="item.quantidade"
+              [name]="'qtd_' + i">
+            <!-- Indicador de saldo disponível -->
+            <mat-hint *ngIf="saldoProduto(item) !== null"
+              [style.color]="item.quantidade > (saldoProduto(item) ?? 0) ? '#e53935' : '#43a047'">
+              Disponível: {{ saldoProduto(item) }}
+            </mat-hint>
+          </mat-form-field>
+ 
+          <!-- Remover linha -->
+          <button mat-icon-button color="warn"
+            *ngIf="itens.length > 1"
+            (click)="removerItem(i)"
+            style="margin-top: 4px;"
+            title="Remover produto">
+            <mat-icon>remove_circle_outline</mat-icon>
+          </button>
+ 
+        </div>
       </div>
-
-      <mat-divider style="margin: 16px 0;"></mat-divider>
-
-      <button mat-stroked-button color="accent" (click)="adicionarItem()" style="margin-bottom: 8px;">
+ 
+      <mat-divider style="margin: 8px 0 16px;"></mat-divider>
+ 
+      <button mat-stroked-button color="accent" (click)="adicionarItem()">
         <mat-icon>add</mat-icon>
         Adicionar Produto
       </button>
-
+ 
     </mat-card-content>
-
+ 
     <mat-card-actions style="padding: 16px;">
       <button mat-raised-button color="primary"
         (click)="salvar()"
         [disabled]="salvando">
+        <mat-icon>receipt</mat-icon>
         {{ salvando ? 'Emitindo...' : 'Emitir Nota Fiscal' }}
       </button>
     </mat-card-actions>
